@@ -169,8 +169,11 @@ Quorum queues use the **RAFT algorithm** to maintain data consistency across rep
 ---
 
 ## 5. Useful Notes:
-- When acknowledgements are enabled:
-  - **At least once** delivery ensures reliability.
-  - Without acknowledgements, delivery is **at most once**.
-- Most RabbitMQ versions use AMQP (0.9.1 or 1.0.0).
-- Messages are always sent from producers to exchanges, not directly to queues.
+- `Avoid coding sync in async`, should use corresponding thread-pool or process-pool instead.
+  - Consider increase `heartbeat` or `ack_deliver_timeout` 
+
+- *Fair distribution* equals to set up `prefetch_count` is `1`.
+- Use `long-live connection` if possible to avoid connection head.
+- Use `quorum queue` instead of classic queue and mirrored classic queue because of:
+  - Mirrored classic queue is officially removed from rabbitmq 4.0. See [article](https://www.rabbitmq.com/blog/2023/03/02/quorum-queues-migration)
+  - Also the performance of quorum queue is much better than mirrored classic queue in both throughput, latency. See [article](https://www.rabbitmq.com/blog/2022/05/16/rabbitmq-3.10-performance-improvements)
