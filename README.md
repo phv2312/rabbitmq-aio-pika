@@ -97,38 +97,40 @@ Notes:
 
 #### Producer - Multiple Consumers (Single Active Consumer Mode):
 * *Present with code*
-- Ensures only one consumer processes messages from a queue, even if multiple consumers are connected. See [Single Active Consumer](https://www.rabbitmq.com/docs/consumers#single-active-consumer)
+- Ensures only one consumer processes messages from a queue, even if multiple consumers are connected. See [Single Active Consumer](https://www.rabbitmq.com/docs/consumers#single-active-consumer).
 
 - Benefits:
 
   - In case the order of messages is important. When failures occur (and re-queue), the broker will try best to put the message to its original position.
+
+  - When the current acitve consumer is disconnect or has issue. Another consumer will be elicted as active consumer.
 
 ---
 
 ### Timeout Mechanisms
 
 #### Heartbeat:
-
-- **Definition**: Heartbeats are signals sent at regular intervals (default of RabbitMQ is 60 seconds) to verify the connectivity and liveliness of a worker. See [Heartbeat Timeout Value](https://www.rabbitmq.com/docs/connections?utm_source=chatgpt.com#lifecycle)
+- **Definition**: Heartbeats are signals sent at regular intervals (default of RabbitMQ is 60 seconds) to verify the connectivity and liveliness of a worker. See [Heartbeat Timeout Value](https://www.rabbitmq.com/docs/connections?utm_source=chatgpt.com#lifecycle).
 
 - If no response is received, the consumer is marked offline, requiring manual reconnection.
 
 #### Acknowledge Timeout:
-- If a consumer fails to respond within the default period (30 minutes), it is marked offline.
+- If a consumer fails to respond within the default period (30 minutes), it is marked offline. See [Delivery Acknowledge Timout](https://www.rabbitmq.com/docs/consumers#acknowledgement-timeout).
+
+- Be careful, got timeout and re-queued may repeat times to times. It is called `Posion Message`. See how Quorum queue handle with [Poison Message Handling](https://www.rabbitmq.com/docs/quorum-queues#poison-message-handling).
 
 ---
 
 ## 3. Queue Types
 
-### Classic Queue:
+### [Classic Queue](https://www.rabbitmq.com/docs/classic-queues)
 - **Single broker node**.
 - **Advantages**:
   - Better latency and throughput for transient workloads (no replication).
 - **Disadvantages**:
   - Limited fault tolerance.
-  - Eventual consistency.
 
-### Quorum Queue:
+### [Quorum Queue](https://www.rabbitmq.com/docs/quorum-queues)
 - **Replicated queues** using the RAFT consensus algorithm.
 - **Advantages**:
   - Strong consistency.
@@ -148,7 +150,7 @@ Notes:
 | **Durability**     | Optional (persistent/non-persistent) | Always durable                       |
 | **Data Safety**    | Moderate                            | High                                 |
 | **Fault Tolerance**| Limited                             | Strong                               |
-| **Consistency**    | Eventual                            | Strong                               |
+| **Consistency**    | Maybe Strong                            | Strong                               |
 
 ---
 
@@ -161,7 +163,7 @@ Quorum queues use the **RAFT algorithm** to maintain data consistency across rep
 - **Key Components**:
   - **Term**: Logical time for elections.
   - **Index**: Order of log entries.
-  - **Log Inconsistency**: Resolved via leader election and log replication.
+- **Log Inconsistency**: Resolved via leader election and log replication.
 
 ### Visualization:
 [RAFT Consensus Algorithm Visualization](https://raft.github.io/)
